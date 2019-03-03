@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBghw0viX_5Ro_Vhk7Tjz1kEGAvEyyFTwY&callback=initMap"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<title>Custom Google map</title>
+	
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Exo+2:700" rel="stylesheet">
+
+</head>
+<body>
+
+	<div class="wrapper">
+			<!--<div class="banner">
+			</div>-->
+	
+			<div class="navWrapper">
+				
+				<div class="nav">
+					<div class="inputText">Zoom:<input id="z" type="number"  class="inputBoxes" min="2" max="16" ></input></div>
+					<button type="button" name="random" id="randomZoom" onclick="randomZoom()">Random</button>
+					<div class="inputText">Longitude:<input type="number" class="inputBoxes" id="x" min="-180" max="180" ></input></div>
+					<div class="inputText">Latitude:<input type="number" class="inputBoxes" id="y" min="-90" max="90" ></input></div>
+					<button type="button" name="random" id="randomLocation" onclick="randomLocation()">Random</button>
+					<button type="button" name="go" id="go" onclick="main()">Go</button>
+					<button type="button" id="start" onclick="placeMarkerStart()">Add start point</button>
+					<button type="button" id="end" onclick="placeMarkerEnd()">Add end point</button>
+				</div>
+		</div>
+
+		<div id="map"></div>
+			<script>
+				//most fucked up clusterfuck ive ever made but it works
+				
+
+				var x = 0;
+				var y = 0;
+				var z = 2;
+
+				//coordinates
+				var endpoint;
+				var startpoint;
+
+				//markers
+				var startmarker;
+				var endmarker;
+
+				//arrays to store markers
+				var startmarkerarray = [];
+				var endmarkerarray = [];
+
+				var startmarkercount = 0;
+				var endmarkercount = 0;
+			
+				//api variables
+				var map;
+				var directionsService;
+				var directionsDisplay;
+
+				var hasstart = false
+
+				function main(){
+					if((document.getElementById("x").value && document.getElementById("y").value && document.getElementById("z").value) == ""){
+						alert("Enter values");
+					}else{
+						getLocation(x,y);
+						getZoom(z);
+						initMap(x,y,z);
+					}
+				}
+				function getLocation(){
+					x = document.getElementById("x").value;
+					y = document.getElementById("y").value;
+					document.getElementById("x").innerHTML = x;
+					document.getElementById("y").innerHTML = y;
+					
+					return x,y;
+				}
+				function getZoom(){
+					z= document.getElementById("z").value;
+					document.getElementById("z").innerHTML = z;
+					return z;
+				}
+				function randomLocation(){
+					x=Math.random() * (181 + 181)-181;  
+					y=Math.random() *  (91 + 91)-91;
+					document.getElementById("x").innerHTML = x;
+					document.getElementById("y").innerHTML = y;
+					document.getElementById("x").value = x;
+					document.getElementById("y").value = y;
+					return x,y;
+				}
+				function randomZoom(){
+					z=Math.floor(Math.random() * (18 - 2) + 2);
+					document.getElementById("z").innerHTML = z;
+					document.getElementById("z").value = z;
+				
+					return z;
+				}
+				//init map function	
+				function initMap(){
+					var options = {
+						zoom: +z,
+						center:{lat: +y, lng: +x}
+					}
+					directionsService = new google.maps.DirectionsService;
+        			directionsDisplay = new google.maps.DirectionsRenderer;
+					map = new google.maps.Map(document.getElementById("map"), options);
+					directionsDisplay.setMap(map);
+					var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
+				}
+					var hasStart = false
+					function placeMarkerStart(){
+					
+	        
+						if(!startpoint){
+							//alert("Select a place to set your 'start' marker then click 'Start Point' again");
+							google.maps.event.addListener(map, 'click', function(event) {
+								if(!hasstart){
+									startpoint = {};
+									startpoint.lat = event.latLng.lat();
+									startpoint.lng = event.latLng.lng();		
+									hasstart = true
+								}
+								//alert("Coordinates for start point saved : "+startpoint.lng+", "+startpoint.lat);
+							});
+						}
+						else{
+							var Starticon = 'https://maps.google.com/mapfiles/kml/paddle/grn-blank.png';
+			        		startmarker = new google.maps.Marker({
+			        		position: new google.maps.LatLng(startpoint.lat, startpoint.lng),
+			        		icon: Starticon,
+			        		map:map,
+			        		type:"pointA"
+			       		 });
+			        	var elem = document.getElementById("start");
+			        	elem.parentNode.removeChild(elem);
+			       
+			      }
+	       	}
+	      
+				function placeMarkerEnd(){
+	        	if (endmarkercount == 1){
+	        		
+	        		clearEndMarker();
+	        		endmarkercount=0;
+	        		document.getElementById("end").innerHTML = "Add end point marker";
+	        	}
+	        	else{
+	        	
+	        		if (!endpoint){
+	        			//alert("Select a place to set your 'end' marker then click 'End Point'");
+
+	        			google.maps.event.addListener(map, 'click', function(event) {
+									if(hasstart){
+										endpoint = {};
+										endpoint.lat = event.latLng.lat();
+										endpoint.lng = event.latLng.lng();
+									}
+								//	alert("Coordinates for end point saved : "+endpoint.lng+", "+endpoint.lat);
+								});
+							}
+							else{
+	    
+							var Endicon = 'https://maps.google.com/mapfiles/kml/paddle/red-blank.png';
+
+		        		endmarker = new google.maps.Marker({
+			        		position: new google.maps.LatLng(endpoint.lat, endpoint.lng),
+			        		icon: Endicon,
+			        		map:map,
+			        		type:"pointB"
+		        		});
+		        		endmarkerarray.push(endmarker);
+		        		delete endpoint;
+		        		endmarkercount = endmarkercount+1;
+		        		document.getElementById("end").innerHTML = "Delete end point marker";
+		        		
+							
+							//Added by Alex : call the route calculation after this
+							calculateAndDisplayRoute(directionsService, directionsDisplay)
+	        	}
+	        }
+	       }
+	        function clearStartMarker(){
+						for (var i = 0; i < startmarkerarray.length; i++) {
+							startmarkerarray[i].setMap(null);
+						}
+						startmarkerarray = [];
+					}
+			 function clearEndMarker(){
+						for (var j = 0; j < endmarkerarray.length; j++) {
+							endmarkerarray[j].setMap(null);
+						}
+						endmarkerarray = [];
+					}
+					var directionServiceResponse;
+	        function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+	        	//https://developers.google.com/maps/documentation/javascript/examples/directions-waypoints
+						var waypts = [];
+						
+			
+        directionsService.route({
+					origin: startpoint,
+					
+          destination: endpoint,
+          
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+						console.log(response)
+						directionServiceResponse = response
+            directionsDisplay.setDirections(response);
+		
+						for(var x=0;x<directionServiceResponse.routes[0].legs[0].steps.length;x++){
+							ERV.directions.push(directionServiceResponse.routes[0].legs[0].steps[x].maneuver)
+							ERV.intersectionMatrix.push(directionServiceResponse.routes[0].legs[0].steps[x].end_location)
+							ERV.distances.push(directionServiceResponse.routes[0].legs[0].steps[x].distance.value)
+						}
+          }
+        	});
+
+			}
+
+				function colourOf(i){
+					if(i>300){
+						return 'red'
+					} else if(i>1000){
+						return 'yellow'
+					} else {
+						return 'grey'
+					}
+				}
+				
+				var ERV = {
+						directions : [],
+						distances: [],
+						intersectionMatrix: [{lat:100,lng:40}],
+						getSpeed: () => {
+								return 75
+						},
+						currentLocation: () => {
+								//dont use this, its just here to ensure the promise works
+								return new Promise(resolve => {
+										navigator.geolocation.getCurrentPosition(function(l) {
+												resolve({lat:l.coords.latitude, lng:l.coords.longitude})
+										})
+								})
+						},
+						getLocation: async () => {
+								ERV.currentLocation().then((resolve)=>{
+										console.log(resolve)
+										return(resolve)
+										//coords are ready, take them nibba, do something with them or i'll beat your ass owO
+								})
+						}
+					}
+			</script>
+	</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+body{
+	margin: 0;
+}
+.wrapper{
+	margin:0;
+	width: 100vw;
+	height: 100vh;
+}
+#map{
+	height: 100%;
+	width: 100%;
+}
+.navWrapper{
+	
+	
+	z-index: 1;
+	position: absolute;
+	margin:calc(100vh - 48px) 0 0 0 ;
+	
+
+}
+.inputText{
+	font-family:  'Exo 2', sans-serif;
+	color: black;
+	display: inline-flex;
+}
+.banner{
+	height: 60px;
+	background-color: white;
+	box-shadow: -2px 0px 3px 1px rgba(0, 0, 0, 0.95);
+
+}
+.nav {
+	width: 100vw;
+	background-color: white;
+}
+.inputBoxes{
+	padding: 7px 10px;
+  margin: 8px 0;
+  width: 100%;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  box-sizing: border-box;
+}

@@ -1,0 +1,3 @@
+To place a start marker, press "add start point" then press on a location on the map and press "add start marker" again
+To place an end marker, it is the same procedure as "add start point"
+To change end point, click "delete end point marker" then click somewhere on the map then click "add end point marker again"
